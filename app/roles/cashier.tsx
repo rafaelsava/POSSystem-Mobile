@@ -8,11 +8,10 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { useProductContext, Product } from "../../context/DataContext";
+import { useProductContext, Product } from "@/context/DataContext";
 
-export default function ProductsCRUD() {
-  const { products, addProduct, updateProduct, deleteProduct } =
-    useProductContext();
+export default function Cashier() {
+  const { products, addProduct, updateProduct, deleteProduct } = useProductContext();
 
   const [photo, setPhoto] = useState("");
   const [title, setTitle] = useState("");
@@ -43,7 +42,7 @@ export default function ProductsCRUD() {
       value: parseFloat(value),
       price: parseFloat(price),
     };
-
+    console.log("Guardando producto:", productData);
     if (editingId) {
       await updateProduct(editingId, productData);
     } else {
@@ -80,16 +79,10 @@ export default function ProductsCRUD() {
       <Text>Descripción: {item.description}</Text>
       <Text>Foto: {item.photo}</Text>
       <View style={styles.buttonRow}>
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => handleEdit(item)}
-        >
+        <TouchableOpacity style={styles.editButton} onPress={() => handleEdit(item)}>
           <Text style={styles.buttonText}>Editar</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={() => item.id && handleDelete(item.id)}
-        >
+        <TouchableOpacity style={styles.deleteButton} onPress={() => item.id && handleDelete(item.id)}>
           <Text style={styles.buttonText}>Eliminar</Text>
         </TouchableOpacity>
       </View>
@@ -210,6 +203,3 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
 });
-
-
-

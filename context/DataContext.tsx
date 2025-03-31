@@ -45,6 +45,7 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
 
   const addProduct = async (product: Product) => {
     try {
+      console.log("Agregando producto:", product);
       await addDoc(collection(db, "products"), product);
     } catch (error) {
       console.error("Error agregando producto:", error);
