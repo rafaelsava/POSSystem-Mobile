@@ -4,3 +4,4 @@ export interface User{
     password:string
     role:"client"|"chef" | "cashier"
 }
+
