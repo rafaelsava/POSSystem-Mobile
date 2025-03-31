@@ -1,89 +1,104 @@
 import { createContext, useEffect, useState } from "react";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile,
+  onAuthStateChanged,
+  User as FirebaseUser,
+} from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore"; // Agregamos getDoc
 import { auth, db } from "@/utils/FirebaseConfig";
 
 interface AuthContextInterface {
-    currentUser: FirebaseUser | null;
-    login: (email: string, password: string) => Promise<Boolean>;
-    register: (user: any) => Promise<Boolean>;
-    logout: () => Promise<void>;
-    updateUser: (user: any) => Promise<void>
-    updateRole: (role: "client" | "chef" | "cashier") => Promise<void>
+  currentUser: FirebaseUser | null;
+  // Ahora devolvemos string | null en lugar de Boolean, para saber el rol
+  login: (email: string, password: string) => Promise<string | null>;
+  register: (user: any) => Promise<Boolean>;
+  logout: () => Promise<void>;
+  updateUser: (user: any) => Promise<void>;
+  updateRole: (role: "client" | "chef" | "cashier") => Promise<void>;
 }
 
-export const AuthContext = createContext({} as AuthContextInterface)
+export const AuthContext = createContext({} as AuthContextInterface);
 
 export const AuthProvider = ({ children }: any) => {
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
 
-    const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user: any) => {
+      setCurrentUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user: any) => {
-            setCurrentUser(user);
-        });
-        return () => unsubscribe();
-    }, []);
-
-    const login = async (email: string, password: string): Promise<Boolean> => {
-        try {
-            const response = await signInWithEmailAndPassword(auth, email, password);
-            if (response.user) {
-                return true;
-            }
-        } catch (error) {
-            console.log(error);
+  // Modificamos esta función para que retorne el rol
+  const login = async (email: string, password: string): Promise<string | null> => {
+    try {
+      const response = await signInWithEmailAndPassword(auth, email, password);
+      if (response.user) {
+        // Obtenemos el rol desde Firestore
+        const userDocRef = doc(db, "users", response.user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          return data.role || null; // Devolvemos el rol si existe
         }
-        return false
-    };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    return null; // Si algo falla, devolvemos null
+  };
 
-    const register = async (user: any): Promise<Boolean> => {
-      console.log(user);
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, user.email, user.password);
-            const firebaseUser = userCredential.user;
-            await updateProfile(firebaseUser, { displayName: user.name });
+  const register = async (user: any): Promise<Boolean> => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, user.email, user.password);
+      const firebaseUser = userCredential.user;
+      await updateProfile(firebaseUser, { displayName: user.name });
 
-            await setDoc(doc(db, "users", firebaseUser.uid), {
-                name: user.name,
-                email: user.email,
-                role: user.role || "client",
-                createdAt: new Date()
-            });
-            return true;
-        } catch (error) {
-            console.log(error);
-            return false;
-        }
-    };
+      await setDoc(doc(db, "users", firebaseUser.uid), {
+        name: user.name,
+        email: user.email,
+        role: user.role || "client",
+        createdAt: new Date(),
+      });
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  };
 
-    const updateUser = async (user: any) => {
-        if (auth.currentUser) {
-            await updateProfile(auth.currentUser, { displayName: user.name });
-            await setDoc(doc(db, "users", auth.currentUser.uid), user, { merge: true });
-        }
-    };
+  const updateUser = async (user: any) => {
+    if (auth.currentUser) {
+      await updateProfile(auth.currentUser, { displayName: user.name });
+      await setDoc(doc(db, "users", auth.currentUser.uid), user, { merge: true });
+    }
+  };
 
-    const updateRole = async (role: "client" | "chef" | "cashier") => {
-        if (auth.currentUser) {
-            await setDoc(doc(db, "users", auth.currentUser.uid), { role }, { merge: true });
-        }
-    };
+  const updateRole = async (role: "client" | "chef" | "cashier") => {
+    if (auth.currentUser) {
+      await setDoc(doc(db, "users", auth.currentUser.uid), { role }, { merge: true });
+    }
+  };
 
-    const logout = async () => {
-        await signOut(auth);
-    };
+  const logout = async () => {
+    await signOut(auth);
+  };
 
-    return <AuthContext.Provider
-        value={{
-            currentUser,
-            login,
-            register,
-            updateUser,
-            updateRole,
-            logout
-        }}
+  return (
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        login,
+        register,
+        updateUser,
+        updateRole,
+        logout,
+      }}
     >
-        {children}
+      {children}
     </AuthContext.Provider>
-}
+  );
+};

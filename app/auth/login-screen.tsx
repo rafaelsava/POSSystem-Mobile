@@ -1,3 +1,4 @@
+// login-screen.tsx
 import React, { useState, useContext } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
@@ -17,10 +18,9 @@ export default function LoginScreen() {
       setError("Por favor, ingresa tu correo y contraseña.");
       return;
     }
-    const success = await login(email, password);
-    if (success) {
-      // Navega a la pantalla principal (ajusta la ruta según tu estructura de navegación)
-      //router.replace("/home");
+    const role = await login(email, password);
+    if (role) {
+      router.replace(`../roles/${role}`);
     } else {
       setError("Credenciales inválidas. Inténtalo de nuevo.");
     }

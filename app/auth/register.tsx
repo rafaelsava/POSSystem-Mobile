@@ -57,4 +57,4 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 20,
   },
-});
+}); 
