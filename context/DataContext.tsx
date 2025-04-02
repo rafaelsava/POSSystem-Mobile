@@ -15,7 +15,7 @@ export interface Product {
   photo: string;
   title: string;
   description: string;
-  productType: string; // Nuevo campo para el tipo de producto
+  productType: string; 
   price: number;
 }
 

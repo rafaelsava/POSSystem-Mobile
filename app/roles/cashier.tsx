@@ -75,7 +75,9 @@ export default function Cashier() {
   };
 
   const renderItem = ({ item }: { item: Product }) => (
+    
     <View style={styles.productItem}>
+
       <Text style={styles.productTitle}>{item.title}</Text>
       <Text>Precio: {item.price}</Text>
       <Text>Tipo de producto: {item.productType}</Text>
@@ -96,6 +98,12 @@ export default function Cashier() {
 
   return (
     <View style={styles.container}>
+  <TouchableOpacity
+        style={styles.cameraButton}
+        onPress={() => setCameraVisible(true)}
+      >
+        <Text style={styles.buttonText}>Tomar Foto</Text>
+      </TouchableOpacity>
       <Text style={styles.title}>
         {editingId ? "Editar Producto" : "Agregar Producto"}
       </Text>
@@ -176,6 +184,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    paddingTop:70,
     backgroundColor: "#fff",
   },
   title: {
@@ -259,5 +268,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#dc3545",
     padding: 8,
     borderRadius: 5,
+  },
+  cameraButton: {
+    backgroundColor: "#f39c12",
+    paddingVertical: 12,
+    alignItems: "center",
+    borderRadius: 8,
+    marginBottom: 10,
   },
 });
