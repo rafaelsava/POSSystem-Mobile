@@ -3,7 +3,7 @@ import React from "react";
 import { Stack } from "expo-router";
 import { ProductProvider } from "@/context/DataContext";
 
-export default function RolesLayout({ children }: { children: React.ReactNode }) {
+export default function ChefLayout({ children }: { children: React.ReactNode }) {
   return (
     <ProductProvider>
       <Stack screenOptions={{ headerShown: false }} />

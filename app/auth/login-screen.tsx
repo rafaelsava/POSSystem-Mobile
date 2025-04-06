@@ -20,7 +20,7 @@ export default function LoginScreen() {
     }
     const role = await login(email, password);
     if (role) {
-      router.replace(`../roles/${role}`);
+      router.replace(`../${role}`);
     } else {
       setError("Credenciales inválidas. Inténtalo de nuevo.");
     }
@@ -67,6 +67,7 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: {
+    paddingTop: 70,
     flex: 1,
     padding: 20,
     backgroundColor: "#fff",
