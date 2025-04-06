@@ -1,10 +1,9 @@
-import { View, Text, Modal, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, Alert ,ActivityIndicator} from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { storage } from "../utils/FirebaseConfig";  // 🔹 Importa Firebase Storage
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import * as FileSystem from 'expo-file-system'; // 🔹 Para convertir la imagen en blob
 
 interface CameraModalProps {
     isVisible: boolean;
@@ -15,15 +14,10 @@ interface CameraModalProps {
 export default function CameraModal(props: CameraModalProps) {
     const [facing, setFacing] = useState<CameraType>('back');
     const [permission, requestPermission] = useCameraPermissions();
+    const [uploading, setUploading] = useState(false);
     const cameraRef = useRef<CameraView>(null);
 
-    useEffect(() => {
-        (async () => {
-            if (!permission?.granted) {
-                await requestPermission();
-            }
-        })();
-    }, []);
+
 
     const flip = () => {
         setFacing(facing === 'back' ? 'front' : 'back');
@@ -55,6 +49,8 @@ export default function CameraModal(props: CameraModalProps) {
 
     // 🔹 Función para subir la imagen a Firebase Storage
     const uploadImageToFirebase = async (imageUri: string) => {
+        setUploading(true); // 👈 Inicia el loader
+
         try {
             // Convertir la imagen en un blob
             const response = await fetch(imageUri);
@@ -78,6 +74,8 @@ export default function CameraModal(props: CameraModalProps) {
         } catch (error) {
             console.error("Error al subir imagen: ", error);
             Alert.alert("Error", "No se pudo subir la imagen.");
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -99,6 +97,13 @@ export default function CameraModal(props: CameraModalProps) {
     return (
         <Modal visible={props.isVisible} animationType="slide">
             <View style={styles.container}>
+                            {uploading && (
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" color="#fff" />
+                    <Text style={styles.loadingText}>Subiendo imagen...</Text>
+                </View>
+                )}
+
                 <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
                     <View style={styles.controls}>
                         <TouchableOpacity onPress={take} style={styles.captureButton}>
@@ -169,4 +174,17 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 5,
     },
+    loadingOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 10,
+      },
+      loadingText: {
+        color: "#fff",
+        marginTop: 10,
+        fontSize: 16,
+      },
+      
 });

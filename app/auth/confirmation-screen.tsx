@@ -38,12 +38,12 @@ export default function ConfirmationScreen({ userData, onPrev }: ConfirmationScr
       <View style={styles.iconContainer}>
         <Text style={styles.checkIcon}>✅</Text>
       </View>
-      <Text style={styles.title}>Confirm Your Information</Text>
-      <Text style={styles.subtitle}>Please review your information before completing registration.</Text>
+      <Text style={styles.title}>Confirma tu Información</Text>
+      <Text style={styles.subtitle}>Revisa tu información para completar el registro</Text>
 
       <View style={styles.infoContainer}>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Name:</Text>
+          <Text style={styles.label}>Nombre:</Text>
           <Text style={styles.value}>{userData.name}</Text>
         </View>
         <View style={styles.infoRow}>
@@ -51,21 +51,21 @@ export default function ConfirmationScreen({ userData, onPrev }: ConfirmationScr
           <Text style={styles.value}>{userData.email}</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Role:</Text>
+          <Text style={styles.label}>Rol:</Text>
           <Text style={styles.value}>{getRoleLabel(userData.role)}</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Password:</Text>
+          <Text style={styles.label}>Contraseña:</Text>
           <Text style={styles.value}>••••••••</Text>
         </View>
       </View>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity onPress={onPrev} style={[styles.button, styles.outlineButton]}>
-          <Text style={styles.buttonTextOutline}>Back</Text>
+          <Text style={styles.buttonTextOutline}>Atrás</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleSubmit} style={styles.button}>
-          <Text style={styles.buttonText}>Complete Registration</Text>
+          <Text style={styles.buttonText}>Completar registro</Text>
         </TouchableOpacity>
       </View>
     </View>

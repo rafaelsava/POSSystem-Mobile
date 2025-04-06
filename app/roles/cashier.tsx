@@ -8,6 +8,7 @@ import {
   FlatList,
   StyleSheet,
   Alert,
+  Image
 } from "react-native";
 import { useProductContext, Product } from "@/context/DataContext";
 import CameraModal from "@/components/CameraModal"; // Asegúrate de importar correctamente el modal de la cámara.
@@ -82,7 +83,10 @@ export default function Cashier() {
       <Text>Precio: {item.price}</Text>
       <Text>Tipo de producto: {item.productType}</Text>
       <Text>Descripción: {item.description}</Text>
-      <Text>Foto: {item.photo}</Text>
+      <Image
+        source={{ uri: item.photo }}
+        style={styles.productImage}
+      />
       <View style={styles.buttonRow}>
         <TouchableOpacity style={styles.editButton} onPress={() => handleEdit(item)}>
           <Text style={styles.buttonText}>Editar</Text>
@@ -107,12 +111,20 @@ export default function Cashier() {
       <Text style={styles.title}>
         {editingId ? "Editar Producto" : "Agregar Producto"}
       </Text>
-      <TextInput
-        style={styles.input}
-        placeholder="URL de la foto"
-        value={photo}
-        onChangeText={setPhoto}
-      />
+            {photo ? (
+        <Image
+          source={{ uri: photo }}
+          style={{ width: "100%", height: 200, borderRadius: 8, marginBottom: 10 }}
+          resizeMode="cover"
+        />
+      ) : (
+        <TextInput
+          style={styles.input}
+          placeholder="Foto"
+          value={photo}
+          onChangeText={setPhoto}
+        />
+      )}
       <TextInput
         style={styles.input}
         placeholder="Título"
@@ -276,4 +288,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 10,
   },
+  productImage: {
+    width: "50%",
+    alignSelf: "center",
+    height: 150,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  
 });

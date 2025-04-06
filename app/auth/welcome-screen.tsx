@@ -12,12 +12,12 @@ export default function WelcomeScreen({ onNext }: WelcomeScreenProps) {
       <View style={styles.iconContainer}>
         <Utensils size={32} color="#007bff" />
       </View>
-      <Text style={styles.title}>Welcome to RestaurantPOS</Text>
+      <Text style={styles.title}>Bienvenido a RestaurantPOS</Text>
       <Text style={styles.subtitle}>
-        Let's set up your restaurant's point of sale system in just a few steps.
+        Registrate en un par de pasos.
       </Text>
       <TouchableOpacity onPress={onNext} style={styles.button}>
-        <Text style={styles.buttonText}>Get Started</Text>
+        <Text style={styles.buttonText}>Empecemos</Text>
       </TouchableOpacity>
     </View>
   );
