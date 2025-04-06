@@ -40,18 +40,18 @@ export default function AccountSetupScreen({ userData, updateUserData, onNext, o
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Account Setup</Text>
-      <Text style={styles.subtitle}>Create a secure password and select your role.</Text>
+      <Text style={styles.title}>Credenciales</Text>
+      <Text style={styles.subtitle}>Crea una contraseña segura y elige tu rol.</Text>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Password</Text>
+        <Text style={styles.label}>Contraseña</Text>
         <View style={styles.passwordContainer}>
           <TextInput
             style={styles.input}
             secureTextEntry={!showPassword}
             value={userData.password}
             onChangeText={(text) => updateUserData({ password: text })}
-            placeholder="Create a strong password"
+            placeholder="Contraseña segura"
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.toggleButton}>
             <Text>{showPassword ? "Hide" : "Show"}</Text>
@@ -61,7 +61,7 @@ export default function AccountSetupScreen({ userData, updateUserData, onNext, o
       </View>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Select Your Role</Text>
+        <Text style={styles.label}>Elige tu rol</Text>
         {(['client', 'chef', 'cashier'] as const).map((role) => (
           <TouchableOpacity
             key={role}

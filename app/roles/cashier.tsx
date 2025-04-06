@@ -1,3 +1,4 @@
+// app/roles/cashier.tsx
 import React, { useState } from "react";
 import {
   View,
@@ -7,30 +8,32 @@ import {
   FlatList,
   StyleSheet,
   Alert,
+  Image
 } from "react-native";
 import { useProductContext, Product } from "@/context/DataContext";
-
+import CameraModal from "@/components/CameraModal"; // Asegúrate de importar correctamente el modal de la cámara.
 export default function Cashier() {
   const { products, addProduct, updateProduct, deleteProduct } = useProductContext();
 
   const [photo, setPhoto] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [value, setValue] = useState("");
+  const [productType, setProductType] = useState("");
   const [price, setPrice] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [cameraVisible, setCameraVisible] = useState(false); // Estado para controlar la visibilidad de la cámara
 
   const clearForm = () => {
     setPhoto("");
     setTitle("");
     setDescription("");
-    setValue("");
+    setProductType("");
     setPrice("");
     setEditingId(null);
   };
 
   const handleSave = async () => {
-    if (!photo || !title || !description || !value || !price) {
+    if (!photo || !title || !description || !productType || !price) {
       Alert.alert("Error", "Todos los campos son obligatorios.");
       return;
     }
@@ -39,9 +42,10 @@ export default function Cashier() {
       photo,
       title,
       description,
-      value: parseFloat(value),
+      productType: productType,
       price: parseFloat(price),
     };
+
     console.log("Guardando producto:", productData);
     if (editingId) {
       await updateProduct(editingId, productData);
@@ -56,7 +60,7 @@ export default function Cashier() {
     setPhoto(product.photo);
     setTitle(product.title);
     setDescription(product.description);
-    setValue(product.value.toString());
+    setProductType(product.productType);
     setPrice(product.price.toString());
   };
 
@@ -72,12 +76,17 @@ export default function Cashier() {
   };
 
   const renderItem = ({ item }: { item: Product }) => (
+    
     <View style={styles.productItem}>
+
       <Text style={styles.productTitle}>{item.title}</Text>
       <Text>Precio: {item.price}</Text>
-      <Text>Valor: {item.value}</Text>
+      <Text>Tipo de producto: {item.productType}</Text>
       <Text>Descripción: {item.description}</Text>
-      <Text>Foto: {item.photo}</Text>
+      <Image
+        source={{ uri: item.photo }}
+        style={styles.productImage}
+      />
       <View style={styles.buttonRow}>
         <TouchableOpacity style={styles.editButton} onPress={() => handleEdit(item)}>
           <Text style={styles.buttonText}>Editar</Text>
@@ -89,17 +98,33 @@ export default function Cashier() {
     </View>
   );
 
+  const productTypes = ["Entrada", "Plato fuerte", "Postre", "Bebidas"];
+
   return (
     <View style={styles.container}>
+  <TouchableOpacity
+        style={styles.cameraButton}
+        onPress={() => setCameraVisible(true)}
+      >
+        <Text style={styles.buttonText}>Tomar Foto</Text>
+      </TouchableOpacity>
       <Text style={styles.title}>
         {editingId ? "Editar Producto" : "Agregar Producto"}
       </Text>
-      <TextInput
-        style={styles.input}
-        placeholder="URL de la foto"
-        value={photo}
-        onChangeText={setPhoto}
-      />
+            {photo ? (
+        <Image
+          source={{ uri: photo }}
+          style={{ width: "100%", height: 200, borderRadius: 8, marginBottom: 10 }}
+          resizeMode="cover"
+        />
+      ) : (
+        <TextInput
+          style={styles.input}
+          placeholder="Foto"
+          value={photo}
+          onChangeText={setPhoto}
+        />
+      )}
       <TextInput
         style={styles.input}
         placeholder="Título"
@@ -112,13 +137,28 @@ export default function Cashier() {
         value={description}
         onChangeText={setDescription}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Valor"
-        value={value}
-        onChangeText={setValue}
-        keyboardType="numeric"
-      />
+      <Text style={styles.label}>Tipo de producto</Text>
+      <View style={styles.typeContainer}>
+        {productTypes.map((type) => (
+          <TouchableOpacity
+            key={type}
+            style={[
+              styles.typeButton,
+              productType === type && styles.typeButtonSelected,
+            ]}
+            onPress={() => setProductType(type)}
+          >
+            <Text
+              style={[
+                styles.typeButtonText,
+                productType === type && styles.typeButtonTextSelected,
+              ]}
+            >
+              {type}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
       <TextInput
         style={styles.input}
         placeholder="Precio"
@@ -139,6 +179,15 @@ export default function Cashier() {
         style={styles.list}
         ListEmptyComponent={<Text>No hay productos.</Text>}
       />
+      {/* Modal de la Cámara */}
+      <CameraModal
+        isVisible={cameraVisible}
+        onClose={() => setCameraVisible(false)}
+        onCapture={(imageUri) => {
+            setPhoto(imageUri);
+            setCameraVisible(false);
+        }}
+    />
     </View>
   );
 }
@@ -147,6 +196,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    paddingTop:70,
     backgroundColor: "#fff",
   },
   title: {
@@ -155,12 +205,41 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "center",
   },
+  label: {
+    marginBottom: 5,
+    fontSize: 16,
+    fontWeight: "600",
+  },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
     padding: 10,
     marginBottom: 10,
+  },
+  typeContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  typeButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#007bff",
+    borderRadius: 8,
+    paddingVertical: 10,
+    marginHorizontal: 5,
+    alignItems: "center",
+  },
+  typeButtonSelected: {
+    backgroundColor: "#007bff",
+  },
+  typeButtonText: {
+    color: "#007bff",
+    fontWeight: "bold",
+  },
+  typeButtonTextSelected: {
+    color: "#fff",
   },
   saveButton: {
     backgroundColor: "#007bff",
@@ -202,4 +281,19 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 5,
   },
+  cameraButton: {
+    backgroundColor: "#f39c12",
+    paddingVertical: 12,
+    alignItems: "center",
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  productImage: {
+    width: "50%",
+    alignSelf: "center",
+    height: 150,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  
 });

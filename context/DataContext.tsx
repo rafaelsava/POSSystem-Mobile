@@ -1,3 +1,4 @@
+// DataContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   collection,
@@ -14,7 +15,7 @@ export interface Product {
   photo: string;
   title: string;
   description: string;
-  value: number;
+  productType: string; 
   price: number;
 }
 
@@ -78,5 +79,3 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
     </ProductContext.Provider>
   );
 };
-
-

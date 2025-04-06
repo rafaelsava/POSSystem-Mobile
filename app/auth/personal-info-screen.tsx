@@ -38,11 +38,11 @@ export default function PersonalInfoScreen({ userData, updateUserData, onNext, o
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Personal Information</Text>
-      <Text style={styles.subtitle}>Tell us a bit about yourself to create your account.</Text>
+      <Text style={styles.title}>Información Personal</Text>
+      <Text style={styles.subtitle}>Cuéntanos un poco sobre ti para crear tu cuenta</Text>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Full Name</Text>
+        <Text style={styles.label}>Nombre Completo</Text>
         <TextInput
           style={styles.input}
           value={userData.name}
@@ -53,7 +53,7 @@ export default function PersonalInfoScreen({ userData, updateUserData, onNext, o
       </View>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Email Address</Text>
+        <Text style={styles.label}>Email</Text>
         <TextInput
           style={styles.input}
           value={userData.email}
