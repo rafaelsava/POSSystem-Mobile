@@ -1,12 +1,13 @@
-// app/roles/_layout.tsx
+// app/roles/chef/_layout.tsx
 import React from "react";
 import { Stack } from "expo-router";
-import { ProductProvider } from "@/context/DataContext";
+import { OrderProvider } from "@/context/OrderContext";
 
 export default function ChefLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ProductProvider>
+    <OrderProvider>
       <Stack screenOptions={{ headerShown: false }} />
-    </ProductProvider>
+      {children}
+    </OrderProvider>
   );
 }
