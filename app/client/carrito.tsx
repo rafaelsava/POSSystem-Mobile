@@ -11,9 +11,11 @@ import {
 import { useOrderContext } from "@/context/OrderContext";
 import { CartItem } from "@/context/OrderContext";
 import { Image } from "react-native";
+import { useRouter } from "expo-router";
 
 export default function CartScreen() {
   const { cart, updateItemQuantity, removeFromCart, sendOrder } = useOrderContext();
+  const router = useRouter();
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -26,7 +28,8 @@ export default function CartScreen() {
       { text: "Cancelar", style: "cancel" },
       {
         text: "Enviar",
-        onPress: () => sendOrder(),
+        onPress: () => {sendOrder()
+        router.push("../client/")},
       },
     ]);
   };

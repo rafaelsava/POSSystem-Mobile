@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from "react-native";
 import { getFirestore, collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { MaterialCommunityIcons, FontAwesome5, Ionicons } from "@expo/vector-icons";
+
 
 export default function OrderStatusScreen() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -20,9 +22,7 @@ export default function OrderStatusScreen() {
       where("userId", "==", userId),
       orderBy("createdAt", "desc")
     );
-
-    console.log("Query:", q); // Debugging line 
-
+      
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map((doc) => ({
         id: doc.id,
@@ -42,6 +42,19 @@ export default function OrderStatusScreen() {
       </View>
     );
   }
+  const getStatusIcon = (status: string) => {
+    console.log("Status:", status);
+    switch (status) {
+      case "Ordered":
+        return <MaterialCommunityIcons name="clipboard-text-clock" size={24} color="#f39c12" />;
+      case "Cooking":
+        return <FontAwesome5 name="fire" size={24} color="#e67e22" />;
+      case "Ready for PickUp":
+        return <Ionicons name="checkmark-done-circle" size={24} color="#27ae60" />;
+      default:
+        return <Ionicons name="help-circle-outline" size={24} color="#7f8c8d" />;
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -55,7 +68,10 @@ export default function OrderStatusScreen() {
           renderItem={({ item }) => (
             <View style={styles.card}>
               <Text style={styles.orderId}>Pedido</Text>
-              <Text>Estado: {item.status}</Text>
+                <View style={styles.headerRow}>
+                    {getStatusIcon(item.status)}
+                    <Text style={styles.statusText}>{item.status}</Text>
+                </View>
               <Text>Fecha: {new Date(item.createdAt.seconds * 1000).toLocaleString()}</Text>
               <Text style={styles.itemsTitle}>Productos:</Text>
               {item.items.map((product: any, index: number) => (
@@ -70,7 +86,7 @@ export default function OrderStatusScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 20, backgroundColor: "#fff" ,paddingTop: 70 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   header: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
   empty: { textAlign: "center", marginTop: 50, fontSize: 16, color: "#888" },
@@ -83,4 +99,16 @@ const styles = StyleSheet.create({
   },
   orderId: { fontWeight: "bold" },
   itemsTitle: { marginTop: 8, fontWeight: "bold" },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 6,
+    gap: 8,
+  },
+  statusText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textTransform: "capitalize",
+  },
+  
 });
