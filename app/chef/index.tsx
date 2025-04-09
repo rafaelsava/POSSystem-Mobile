@@ -1,4 +1,3 @@
-// app/roles/chef/index.tsx
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -15,6 +14,7 @@ import { useRouter } from "expo-router";
 interface Order {
   id: string;
   userId: string;
+  tableNumber: string; // Nuevo campo
   items: {
     id: string;
     title: string;
@@ -28,7 +28,7 @@ interface Order {
 const finishedStatuses = ["Ready for PickUp", "Listo", "Listo para recoger"];
 
 const Timer: React.FC<{ createdAt: any; status: string }> = ({ createdAt, status }) => {
-  // Trabajamos en segundos para poder mostrar HH:MM:SS
+  // Calculamos en segundos para mostrar en formato HH:MM:SS
   const [elapsed, setElapsed] = useState<number>(() => {
     if (createdAt?.toDate) {
       return Math.floor((new Date().getTime() - createdAt.toDate().getTime()) / 1000);
@@ -39,7 +39,7 @@ const Timer: React.FC<{ createdAt: any; status: string }> = ({ createdAt, status
   useEffect(() => {
     if (!createdAt?.toDate) return;
     const orderDate = createdAt.toDate();
-    // Si la orden está finalizada, actualiza el timer una sola vez y no continúa
+    // Si la orden está finalizada, actualiza una sola vez
     if (finishedStatuses.includes(status)) {
       setElapsed(Math.floor((new Date().getTime() - orderDate.getTime()) / 1000));
       return;
@@ -51,7 +51,7 @@ const Timer: React.FC<{ createdAt: any; status: string }> = ({ createdAt, status
     return () => clearInterval(timer);
   }, [createdAt, status]);
 
-  // Función para formatear los segundos a HH:MM:SS
+  // Función para formatear segundos a HH:MM:SS
   const formatTime = (secs: number) => {
     const hours = Math.floor(secs / 3600);
     const minutes = Math.floor((secs % 3600) / 60);
@@ -61,7 +61,7 @@ const Timer: React.FC<{ createdAt: any; status: string }> = ({ createdAt, status
   };
 
   return (
-    <Text style={styles.timePassed}>
+    <Text style={styles.timerText}>
       Tiempo transcurrido: {formatTime(elapsed)}
     </Text>
   );
@@ -73,7 +73,7 @@ export default function ChefOrders() {
   const router = useRouter();
 
   useEffect(() => {
-    // Orden descendente para que la última orden pedida aparezca primero
+    // Ordenamos por 'createdAt' en modo descendente para que la última orden aparezca primero
     const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(
       q,
@@ -107,16 +107,17 @@ export default function ChefOrders() {
           })
         }
       >
-        <View style={styles.cardHeader}>
-          <Text style={styles.orderId}>Orden ID: {item.id}</Text>
-          <Text style={styles.status}>Estado: {item.status}</Text>
+        <View style={styles.headerRow}>
+          {/* Se muestra el número de mesa en vez del ID */}
+          <Text style={styles.orderId}>Mesa: {item.tableNumber}</Text>
+          <Text style={styles.statusText}>{item.status}</Text>
         </View>
-        <Text style={styles.date}>Fecha: {orderDateStr}</Text>
+        <Text style={styles.dateText}>Fecha: {orderDateStr}</Text>
         {orderDateObj && <Timer createdAt={item.createdAt} status={item.status} />}
         <View style={styles.itemsContainer}>
           {item.items.map((orderItem) => (
             <Text key={orderItem.id} style={styles.itemText}>
-              {orderItem.title} x{orderItem.quantity}
+              • {orderItem.title} x{orderItem.quantity}
             </Text>
           ))}
         </View>
@@ -126,7 +127,7 @@ export default function ChefOrders() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={styles.center}>
         <ActivityIndicator size="large" color="#007bff" />
       </View>
     );
@@ -150,73 +151,38 @@ export default function ChefOrders() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 50,
-    backgroundColor: "#f2f2f2",
-  },
-  header: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-    color: "#333",
-  },
-  empty: {
-    textAlign: "center",
-    marginTop: 50,
-    fontSize: 18,
-    color: "#888",
-  },
+  container: { flex: 1, padding: 20, backgroundColor: "#fff", paddingTop: 70 },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  header: { fontSize: 24, fontWeight: "bold", marginBottom: 10, textAlign: "center" },
+  empty: { textAlign: "center", marginTop: 50, fontSize: 16, color: "#888" },
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
     padding: 15,
-    marginBottom: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 10,
+    marginBottom: 10,
+    backgroundColor: "#fff",
   },
-  cardHeader: {
+  headerRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 8,
+    alignItems: "center",
+    marginBottom: 6,
   },
-  orderId: {
+  orderId: { fontWeight: "bold" },
+  statusText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#007bff",
-  },
-  status: {
-    fontSize: 16,
-    fontWeight: "600",
+    textTransform: "capitalize",
+    marginLeft: 10,
     color: "#FF5722",
   },
-  date: {
-    fontSize: 12,
-    color: "#666",
-  },
-  timePassed: {
-    fontSize: 14,
-    color: "#333",
-    marginTop: 8,
-  },
+  dateText: { fontSize: 12, color: "#666" },
+  timerText: { fontSize: 14, color: "#333", marginTop: 4 },
   itemsContainer: {
-    marginTop: 10,
+    marginTop: 8,
     borderTopWidth: 1,
     borderTopColor: "#ddd",
     paddingTop: 8,
   },
-  itemText: {
-    fontSize: 14,
-    color: "#555",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  itemText: { fontSize: 14, color: "#555" },
 });
