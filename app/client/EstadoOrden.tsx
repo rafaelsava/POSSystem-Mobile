@@ -4,6 +4,7 @@ import { View, Text, FlatList, StyleSheet, ActivityIndicator } from "react-nativ
 import { getFirestore, collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { MaterialCommunityIcons, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { MailWarningIcon } from "lucide-react-native";
 
 
 export default function OrderStatusScreen() {
@@ -72,6 +73,7 @@ export default function OrderStatusScreen() {
                     {getStatusIcon(item.status)}
                     <Text style={styles.statusText}>{item.status}</Text>
                 </View>
+              <Text style={styles.mesa}>Mesa: {item.tableNumber}</Text>
               <Text>Fecha: {new Date(item.createdAt.seconds * 1000).toLocaleString()}</Text>
               <Text style={styles.itemsTitle}>Productos:</Text>
               {item.items.map((product: any, index: number) => (
@@ -102,7 +104,7 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 6,
+    marginBottom: 3,
     gap: 8,
   },
   statusText: {
@@ -110,5 +112,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textTransform: "capitalize",
   },
+  mesa:{
+    marginBottom: 5
+  }
   
 });
