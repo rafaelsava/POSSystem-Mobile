@@ -1,17 +1,31 @@
 // app/roles/client/index.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useRouter } from "expo-router";
+import { useOrderContext } from "@/context/OrderContext";
 
 export default function ClientIndex() {
   const navigation = useNavigation();
+  const { setTableNumber, tableNumber } = useOrderContext();
+  
   const router = useRouter();
 
+  useEffect(() => { 
+    if (!tableNumber) {
+      router.push('../client/mesa'); // Cambia a la pantalla de escaneo si no hay número de mesa
+    }
+  }
+  , [tableNumber, navigation]);
+
+  
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bienvenido 👋</Text>
+      <Text style={styles.title}>Bienvenido 👋. </Text>
+      <Text style={styles.subtitle1}>Estas ubicado en la mesa {tableNumber}</Text>
+
       <Text style={styles.subtitle}>¿Qué deseas hacer?</Text>
+
 
       <TouchableOpacity
         style={styles.button}
@@ -25,6 +39,15 @@ export default function ClientIndex() {
         onPress={() => router.push("../client/EstadoOrden")}
       >
         <Text style={styles.buttonText}>📦 Ver estado de mis órdenes</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.button, styles.thirdButton]}
+        onPress={() => {router.push("../client/mesa")
+          setTableNumber("") 
+        }}
+      >
+        <Text style={styles.buttonText}>🪑 Elegir nueva mesa</Text>
       </TouchableOpacity>
     </View>
   );
@@ -42,6 +65,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
     textAlign: "center",
+  },
+  subtitle1: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 10,
+    textAlign: "center",
+    color: "#000000",
   },
   subtitle: {
     fontSize: 16,
@@ -64,4 +94,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
   },
+  thirdButton:{
+    backgroundColor: "#dc3545",
+  }
 });

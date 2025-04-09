@@ -24,11 +24,14 @@ interface OrderContextProps {
   updateItemQuantity: (productId: string, quantity: number) => void;
   sendOrder: () => Promise<void>;
   clearCart: () => void;
+  tableNumber: string | null;
+  setTableNumber: (table: string) => void;
 }
 
 const OrderContext = createContext<OrderContextProps | undefined>(undefined);
 
 export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
+   const [tableNumber, setTableNumber] = useState<string | null>(null);
     const { currentUser } = useContext(AuthContext); 
     const [cart, setCart] = useState<CartItem[]>([]);
 
@@ -75,12 +78,14 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
   
       const newOrder = {
         userId: currentUser.uid,
+        tableNumber: tableNumber ?? "Sin número",
         items: cart.map(({ id, title, price, quantity }) => ({
           id, title, price, quantity,
         })),
-        status: "Ordered", // Estado inicial
+        status: "Ordered",
         createdAt: Timestamp.now(),
       };
+      
   
       await addDoc(collection(db, "orders"), newOrder);
   
@@ -101,6 +106,8 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
         updateItemQuantity,
         sendOrder,
         clearCart,
+        tableNumber,
+        setTableNumber,
       }}
     >
       {children}
