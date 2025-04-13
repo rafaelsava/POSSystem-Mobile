@@ -35,6 +35,8 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
     const { currentUser } = useContext(AuthContext); 
     const [cart, setCart] = useState<CartItem[]>([]);
 
+    
+
   const addToCart = (product: Product) => {
     setCart((prev) => {
       const found = prev.find((item) => item.id === product.id);
@@ -75,6 +77,9 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
         Alert.alert("Error", "Debes iniciar sesión para hacer un pedido.");
         return;
       }
+
+      const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
   
       const newOrder = {
         userId: currentUser.uid,
@@ -84,6 +89,7 @@ export const OrderProvider = ({ children }: { children: React.ReactNode }) => {
         })),
         status: "Ordered",
         createdAt: Timestamp.now(),
+        subtotal: subtotal,
       };
       
   

@@ -9,6 +9,8 @@ import { MaterialCommunityIcons, FontAwesome5, Ionicons } from "@expo/vector-ico
 export default function OrderStatusScreen() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+
 
   useEffect(() => {
     const db = getFirestore();
@@ -52,14 +54,39 @@ export default function OrderStatusScreen() {
     }
   };
 
+  const filteredOrders = statusFilter
+  ? orders.filter((order) => order.status === statusFilter)
+  : orders;
+
   return (
+    
     <View style={styles.container}>
       <Text style={styles.header}>Pedidos</Text>
-      {orders.length === 0 ? (
-        <Text style={styles.empty}>No hay pedidos aún</Text>
+
+      <View style={styles.filterContainer}>
+      {["All", "Ordered", "Cooking", "Ready for PickUp", "Paid"].map((status) => (
+        <Text
+          key={status}
+          onPress={() => setStatusFilter(status === "All" ? null : status)}
+          style={[
+            styles.filterButton,
+            statusFilter === status || (status === "All" && !statusFilter)
+              ? styles.filterButtonActive
+              : {},
+          ]}
+        >
+          {status}
+        </Text>
+      ))}
+    </View>
+
+    {filteredOrders.length === 0 ? (
+        <Text style={styles.empty}>No hay pedidos en este estado</Text>
       ) : (
+        
+        
         <FlatList
-          data={orders}
+          data={filteredOrders}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <View style={styles.card}>
@@ -70,6 +97,7 @@ export default function OrderStatusScreen() {
                 </View>
               <Text style={styles.mesa}>Mesa: {item.tableNumber}</Text>
               <Text>Fecha: {new Date(item.createdAt.seconds * 1000).toLocaleString()}</Text>
+              <Text>Subtotal: {item.subtotal}$</Text>
               <Text style={styles.itemsTitle}>Productos:</Text>
               {item.items.map((product: any, index: number) => (
                 <Text key={index}>• {product.title} x{product.quantity}</Text>
@@ -109,6 +137,26 @@ const styles = StyleSheet.create({
   },
   mesa:{
     marginBottom: 5
-  }
+  },
+  filterContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: 15,
+    flexWrap: "wrap",
+  },
+  filterButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    margin: 4,
+    color: "#555",
+  },
+  filterButtonActive: {
+    backgroundColor: "#007bff",
+    color: "#fff",
+    borderColor: "#007bff",
+  },
   
 });
