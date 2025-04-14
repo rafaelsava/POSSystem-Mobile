@@ -1,18 +1,20 @@
-// app/roles/client/index.tsx
+// app/roles/cashier/index.tsx
+import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import LogoutButton from "../LogoutButton";
 
-export default function ClientIndex() {
-  
+export default function CashierIndex() {
   const router = useRouter();
 
-
-  
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bienvenido 👋 </Text>
+      {/* Header con el botón de logout posicionado en la esquina superior derecha */}
+      <View style={styles.header}>
+        <LogoutButton />
+      </View>
+      <Text style={styles.title}>Bienvenido 👋</Text>
       <Text style={styles.subtitle}>¿Qué deseas hacer?</Text>
-
 
       <TouchableOpacity
         style={styles.button}
@@ -27,7 +29,6 @@ export default function ClientIndex() {
       >
         <Text style={styles.buttonText}>📦 Ver estado de las órdenes</Text>
       </TouchableOpacity>
-
     </View>
   );
 }
@@ -35,22 +36,21 @@ export default function ClientIndex() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "center", // centra el contenido verticalmente (salvo el header absoluto)
     padding: 30,
     backgroundColor: "#fff",
+  },
+  header: {
+    position: "absolute",
+    top: 50,
+    right: 30,
+    zIndex: 10,
   },
   title: {
     fontSize: 26,
     fontWeight: "bold",
     marginBottom: 10,
     textAlign: "center",
-  },
-  subtitle1: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 10,
-    textAlign: "center",
-    color: "#000000",
   },
   subtitle: {
     fontSize: 16,
@@ -73,7 +73,4 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
   },
-  thirdButton:{
-    backgroundColor: "#dc3545",
-  }
 });

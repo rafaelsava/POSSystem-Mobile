@@ -10,6 +10,7 @@ import {
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "@/utils/FirebaseConfig";
 import { useRouter } from "expo-router";
+import LogoutButton from "../LogoutButton";
 
 interface Order {
   id: string;
@@ -25,7 +26,7 @@ interface Order {
   createdAt: any;
 }
 
-const finishedStatuses = ["Ready for PickUp", "Listo", "Listo para recoger"];
+const finishedStatuses = ["Ready for PickUp", "Listo", "Listo para recoger","Paid"];
 
 const Timer: React.FC<{ createdAt: any; status: string }> = ({ createdAt, status }) => {
   // Calculamos en segundos para mostrar en formato HH:MM:SS
@@ -135,7 +136,10 @@ export default function ChefOrders() {
 
   return (
     <View style={styles.container}>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" ,paddingBottom: 20}}>
       <Text style={styles.header}>Órdenes de Cocina</Text>
+      <LogoutButton></LogoutButton>
+      </View>
       {orders.length === 0 ? (
         <Text style={styles.empty}>No hay órdenes en este momento.</Text>
       ) : (

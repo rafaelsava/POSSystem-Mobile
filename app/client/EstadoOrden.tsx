@@ -52,6 +52,8 @@ export default function OrderStatusScreen() {
         return <FontAwesome5 name="fire" size={24} color="#e67e22" />;
       case "Ready for PickUp":
         return <Ionicons name="checkmark-done-circle" size={24} color="#27ae60" />;
+        case "Paid":
+          return <Ionicons name="cash-outline" size={24} color="#27ae60" />;
       default:
         return <Ionicons name="help-circle-outline" size={24} color="#7f8c8d" />;
     }
