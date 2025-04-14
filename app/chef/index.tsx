@@ -1,188 +1,104 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
-import { db } from "@/utils/FirebaseConfig";
+// app/roles/client/index.tsx
+import React, { useEffect } from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { useRouter } from "expo-router";
+import { useOrderContext } from "@/context/OrderContext";
+import LogoutButton from "../LogoutButton"; // Se importa el botón de logout
 
-interface Order {
-  id: string;
-  userId: string;
-  tableNumber: string; // Nuevo campo
-  items: {
-    id: string;
-    title: string;
-    price: number;
-    quantity: number;
-  }[];
-  status: string;
-  createdAt: any;
-}
-
-const finishedStatuses = ["Ready for PickUp", "Listo", "Listo para recoger"];
-
-const Timer: React.FC<{ createdAt: any; status: string }> = ({ createdAt, status }) => {
-  // Calculamos en segundos para mostrar en formato HH:MM:SS
-  const [elapsed, setElapsed] = useState<number>(() => {
-    if (createdAt?.toDate) {
-      return Math.floor((new Date().getTime() - createdAt.toDate().getTime()) / 1000);
-    }
-    return 0;
-  });
-
-  useEffect(() => {
-    if (!createdAt?.toDate) return;
-    const orderDate = createdAt.toDate();
-    // Si la orden está finalizada, actualiza una sola vez
-    if (finishedStatuses.includes(status)) {
-      setElapsed(Math.floor((new Date().getTime() - orderDate.getTime()) / 1000));
-      return;
-    }
-    const timer = setInterval(() => {
-      const diff = Math.floor((new Date().getTime() - orderDate.getTime()) / 1000);
-      setElapsed(diff);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [createdAt, status]);
-
-  // Función para formatear segundos a HH:MM:SS
-  const formatTime = (secs: number) => {
-    const hours = Math.floor(secs / 3600);
-    const minutes = Math.floor((secs % 3600) / 60);
-    const seconds = secs % 60;
-    const pad = (num: number) => num.toString().padStart(2, "0");
-    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-  };
-
-  return (
-    <Text style={styles.timerText}>
-      Tiempo transcurrido: {formatTime(elapsed)}
-    </Text>
-  );
-};
-
-export default function ChefOrders() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function ClientIndex() {
+  const navigation = useNavigation();
+  const { setTableNumber, tableNumber } = useOrderContext();
   const router = useRouter();
 
-  useEffect(() => {
-    // Ordenamos por 'createdAt' en modo descendente para que la última orden aparezca primero
-    const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const ordersData: Order[] = [];
-        snapshot.forEach((doc) => {
-          ordersData.push({ id: doc.id, ...doc.data() } as Order);
-        });
-        setOrders(ordersData);
-        setLoading(false);
-      },
-      (error) => {
-        console.error("Error al obtener órdenes:", error);
-        setLoading(false);
-      }
-    );
-
-    return () => unsubscribe();
-  }, []);
-
-  const renderOrderItem = ({ item }: { item: Order }) => {
-    const orderDateObj = item.createdAt?.toDate ? item.createdAt.toDate() : null;
-    const orderDateStr = orderDateObj ? orderDateObj.toLocaleString() : "";
-    return (
-      <TouchableOpacity
-        style={styles.card}
-        onPress={() =>
-          router.push({
-            pathname: "../chef/orderid",
-            params: { orderId: item.id },
-          })
-        }
-      >
-        <View style={styles.headerRow}>
-          {/* Se muestra el número de mesa en vez del ID */}
-          <Text style={styles.orderId}>Mesa: {item.tableNumber}</Text>
-          <Text style={styles.statusText}>{item.status}</Text>
-        </View>
-        <Text style={styles.dateText}>Fecha: {orderDateStr}</Text>
-        {orderDateObj && <Timer createdAt={item.createdAt} status={item.status} />}
-        <View style={styles.itemsContainer}>
-          {item.items.map((orderItem) => (
-            <Text key={orderItem.id} style={styles.itemText}>
-              • {orderItem.title} x{orderItem.quantity}
-            </Text>
-          ))}
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#007bff" />
-      </View>
-    );
-  }
+  useEffect(() => { 
+    if (!tableNumber) {
+      router.push('../client/mesa'); // Redirige a la pantalla de escaneo si no hay número de mesa
+    }
+  }, [tableNumber, navigation]);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Órdenes de Cocina</Text>
-      {orders.length === 0 ? (
-        <Text style={styles.empty}>No hay órdenes en este momento.</Text>
-      ) : (
-        <FlatList
-          data={orders}
-          keyExtractor={(item) => item.id}
-          renderItem={renderOrderItem}
-          contentContainerStyle={{ paddingBottom: 20 }}
-        />
-      )}
+      {/* Header con botón de logout */}
+      <View style={styles.header}>
+        <LogoutButton />
+      </View>
+      <Text style={styles.title}>Bienvenido 👋. </Text>
+      <Text style={styles.subtitle1}>Estas ubicado en la mesa {tableNumber}</Text>
+      <Text style={styles.subtitle}>¿Qué deseas hacer?</Text>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => router.push("../client/CrearOrden")}
+      >
+        <Text style={styles.buttonText}>🛒 Crear nueva orden</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.button, styles.secondaryButton]}
+        onPress={() => router.push("../client/EstadoOrden")}
+      >
+        <Text style={styles.buttonText}>📦 Ver estado de mis órdenes</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.button, styles.thirdButton]}
+        onPress={() => {
+          router.push("../client/mesa");
+          setTableNumber("");
+        }}
+      >
+        <Text style={styles.buttonText}>🪑 Elegir nueva mesa</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff", paddingTop: 70 },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  header: { fontSize: 24, fontWeight: "bold", marginBottom: 10, textAlign: "center" },
-  empty: { textAlign: "center", marginTop: 50, fontSize: 16, color: "#888" },
-  card: {
-    padding: 15,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    marginBottom: 10,
+  container: {
+    flex: 1,
+    justifyContent: "center", // Centra el contenido (excepto el header absoluto)
+    padding: 30,
     backgroundColor: "#fff",
   },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 6,
+  // Header posicionado absolutamente en la esquina superior derecha
+  header: {
+    position: "absolute",
+    top: 50,
+    right: 30,
   },
-  orderId: { fontWeight: "bold" },
-  statusText: {
-    fontSize: 16,
+  title: {
+    fontSize: 26,
     fontWeight: "bold",
-    textTransform: "capitalize",
-    marginLeft: 10,
-    color: "#FF5722",
+    marginBottom: 10,
+    textAlign: "center",
   },
-  dateText: { fontSize: 12, color: "#666" },
-  timerText: { fontSize: 14, color: "#333", marginTop: 4 },
-  itemsContainer: {
-    marginTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: "#ddd",
-    paddingTop: 8,
+  subtitle1: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 10,
+    textAlign: "center",
+    color: "#000000",
   },
-  itemText: { fontSize: 14, color: "#555" },
+  subtitle: {
+    fontSize: 16,
+    marginBottom: 40,
+    textAlign: "center",
+    color: "#666",
+  },
+  button: {
+    backgroundColor: "#007bff",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  secondaryButton: {
+    backgroundColor: "#28a745",
+  },
+  thirdButton: {
+    backgroundColor: "#dc3545",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
+  },
 });
