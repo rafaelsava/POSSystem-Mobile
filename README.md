@@ -1,50 +1,73 @@
-# Welcome to your Expo app 👋
+# 🍽️ App de Pedidos para Restaurante
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicación móvil para gestionar pedidos en un entorno de restaurante. Los usuarios pueden ser clientes, chefs o cajeros, y cada uno tiene flujos de interacción específicos para facilitar el proceso desde la orden hasta el pago.
 
-## Get started
+## 🧰 Tecnologías Utilizadas
 
-1. Install dependencies
+- **React Native (Expo)** – Interfaz móvil multiplataforma.  
+- **Firebase (Auth + Firestore)** – Autenticación y almacenamiento de datos en tiempo real.  
+- **TypeScript** – Seguridad de tipos en el desarrollo.  
+- **Context API** – Manejo centralizado del estado global de la app.
 
-   ```bash
-   npm install
-   ```
+## 👥 Integrantes del Proyecto
 
-2. Start the app
+- Rafael Salcedo  
+- Fermín Escalona
 
-   ```bash
-    npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## 🔄 Flujos del Usuario
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### 👨‍🍳 Cliente
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+1. **Ver Menú y Agregar al Carrito**
+   - El cliente visualiza todos los productos disponibles.
+   - Puede agregar productos al carrito, ajustar cantidades y eliminarlos.
+   - Al finalizar, envía la orden directamente a cocina.
 
-## Get a fresh project
+2. **Ver Estado del Pedido**
+   - El cliente puede consultar el estado de su orden en cualquier momento.
+   - Estados posibles: `Ordered`, `Cooking`, `Ready for Pickup`, `Delivered`, `Ready for Payment`.
 
-When you're ready, run:
+---
+
+### 🍳 Chef
+
+3. **Recibir Pedidos**
+   - Recibe órdenes nuevas en tiempo real.
+   - Puede visualizar los detalles y productos de cada orden.
+
+4. **Actualizar Estado**
+   - Cambia el estado del pedido a `Cooking` o `Ready for Pickup`.
+   - Cada cambio se refleja automáticamente en la vista del cliente.
+
+---
+
+### 💵 Cajero
+
+5. **Ver Todas las Órdenes**
+   - Panel con todas las órdenes activas y sus detalles.
+   - Permite filtrar por estado (como "Ready for Payment").
+
+6. **Cobrar y Marcar como Pagado**
+   - Visualiza un resumen detallado de la orden: subtotal, impuestos, total.
+   - Marca la orden como `Paid` al recibir el pago.
+   - Genera un recibo.
+
+---
+
+## 📂 Estructura del Proyecto
+
+- `app/client/` – Pantallas y lógica para clientes.  
+- `app/chef/` – Interfaz para la cocina.  
+- `app/cashier/` – Pantallas para cajeros.  
+- `context/` – Contextos para el manejo de estado global.  
+- `utils/` – Configuración de Firebase y herramientas auxiliares.
+
+---
+
+## ▶️ Cómo Ejecutar
 
 ```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+npm install
+npx expo start
